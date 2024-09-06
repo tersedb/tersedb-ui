@@ -34,4 +34,5 @@
 
 #settings {
   border-color: var(--fallback-bc,oklch(var(--bc)/0.2)); /* matching daisy tabs */
+  min-height: max(100vh, 100%);
 }

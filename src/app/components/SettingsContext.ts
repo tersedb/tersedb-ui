@@ -8,7 +8,7 @@ export const initSettings = {
 
 export const SettingsContext = createContext(initSettings)
 
-export async function act(settings, body) {
+export async function act(settings, body, onStatus) {
   const uri = settings.host + (settings.strict ? "/actStrict" : "/act");
   const actors = settings.actors.map(({actor}) => actor).join(",");
   try {
@@ -21,6 +21,11 @@ export async function act(settings, body) {
         "Authorization": actors,
       }
     });
+
+    if (onStatus && httpResponse.status !== 200 && onStatus[httpResponse.status]) {
+      onStatus[httpResponse.status]();
+    }
+
     const response = await httpResponse.json();
 
     return response;

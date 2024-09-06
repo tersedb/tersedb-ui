@@ -3,10 +3,16 @@
 import TabBar from "./components/TabBar";
 import Settings from "./components/Settings";
 import {SettingsContext, initSettings} from "./components/SettingsContext";
+import {UnauthorizedContext} from "./components/UnauthorizedContext";
 import {useState, useEffect} from "react";
 
 export default function RootTemplate({ children }) {
   const [settings, setSettings] = useState(initSettings);
+  const [unauthorizedNotices, setUnauthorizedNotices] = useState([]);
+  function addUnauthorized(notice) {
+    setUnauthorizedNotices([ ...unauthorizedNotices, notice ]);
+  }
+
   useEffect(() => {
     try {
       const storedSettings = JSON.parse(localStorage.getItem("settings"));
@@ -23,12 +29,18 @@ export default function RootTemplate({ children }) {
       <div className="grow">
         <TabBar />
         <SettingsContext.Provider value={settings}>
-          { children }
+          <UnauthorizedContext.Provider value={addUnauthorized}>
+            { children }
+          </UnauthorizedContext.Provider>
         </SettingsContext.Provider>
       </div>
-      <div id="settings" className="border-l-2 pl-2 h-screen shrink">
+      <div id="settings" className="border-l-2 pl-2 shrink">
         <Settings
           {...settings}
+          unauthorized={unauthorizedNotices}
+          rmUnauthorized={(idx) => setUnauthorizedNotices(
+            unauthorizedNotices.filter((_,idx_) => idx !== idx_)
+          )}
           onChange={(newSettings) => {
             localStorage.setItem("settings", JSON.stringify(newSettings));
             setSettings(newSettings)

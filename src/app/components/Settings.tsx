@@ -1,6 +1,13 @@
 "use client";
 
-export default function Settings({actors, strict, host, onChange}) {
+export default function Settings({
+  actors,
+  strict,
+  host,
+  unauthorized,
+  rmUnauthorized,
+  onChange
+}) {
   const viewActor = ({actor}, idx) => (
     <li className="my-1 flex flex-row gap-1 items-center" key={idx}>
       <input
@@ -12,19 +19,28 @@ export default function Settings({actors, strict, host, onChange}) {
           host,
           strict,
           actors: actors.map((x, idx_) => idx_ === idx ? {actor: e.target.value} : x)
-        })}/>
+        })} />
       <button
         className="btn btn-error btn-sm"
         onClick={() => onChange({
           strict,
           host,
           actors: actors.filter((_,idx_) => idx_ !== idx)
-        })}
-        >
+        })}>
         -
       </button>
     </li>
   );
+
+  const unauthorizedNotices = unauthorized.map((notice, idx) => (
+    <div
+      role="alert"
+      className="alert alert-warning w-full flex flex-row mb-2"
+      onClick={() => rmUnauthorized(idx)}
+      key={idx}>
+      <span className="grow">{`Unauthorized: ${notice}`}</span>
+    </div>
+  ));
 
   return (
     <>
@@ -32,6 +48,7 @@ export default function Settings({actors, strict, host, onChange}) {
       <ul className="menu rounded-box">
         <li>
           <h2 className="cursor-default">Actors</h2>
+          {unauthorizedNotices}
           <ul>
             {actors.map(viewActor)}
           </ul>

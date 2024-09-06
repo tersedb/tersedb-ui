@@ -2,9 +2,11 @@
 
 import {useContext, useState, useEffect, useRef} from "react";
 import {SettingsContext, act} from "./components/SettingsContext";
+import {UnauthorizedContext} from "./components/UnauthorizedContext";
 
 export default function Groups() {
   const settings = useContext(SettingsContext);
+  const addUnauthorized = useContext(UnauthorizedContext);
   const [forceRepaint, setForceRepaint] = useState(false);
   const [groups, setGroups] = useState(null);
   const groupDetailsModal = useRef(null);
@@ -18,6 +20,8 @@ export default function Groups() {
           thunks.push((async () => {
             const res = await act(settings, {
               r: {g: {n: g}}
+            }, {
+              401: () => addUnauthorized(`Couldn't Read Next Groups for ${g}`),
             });
             const next = res ? await getNext(res.r.g) : [];
             return {g, next};
@@ -30,6 +34,8 @@ export default function Groups() {
       try {
         const res = await act(settings, {
           r: "rg"
+        }, {
+          401: () => addUnauthorized("Couldn't Read All Root Groups"),
         });
         const groups = await getNext(res.r.g);
         // const res = await act(settings, {
@@ -41,10 +47,12 @@ export default function Groups() {
         console.warn("Couldn't set response", e);
       }
     }
-    go();
+    if (settings.actors.length > 0) {
+      go();
+    }
   }, [settings, forceRepaint])
 
-  if (groups === null) {
+  if (settings.actors.length === 0 || groups === null) {
     return (
       <div className="flex items-center justify-center h-full">
         <span className="loading loading-spinner loading-lg"></span>
@@ -56,6 +64,8 @@ export default function Groups() {
     async function go() {
       const res = await act(settings, {
         c: "g"
+      }, {
+        401: addUnauthorized("Couldn't Create Group"),
       });
       console.log(res);
       setForceRepaint(!forceRepaint);
