@@ -66,14 +66,11 @@ export default function Groups() {
   function renderNode({g, next}) {
     return (
       <div className="flex flex-col gap-4" key={g}>
-        <button
-          onClick={() => {
-            setGroupDetailsOf(g);
-            groupDetailsModal.current.showModal();
-          }}
+        <a
+          href={`/${g}`}
           className="btn btn-sm btn-secondary shrink align-center">
-          ...{g.substring(g.length - 4, g.length)}
-        </button>
+          {g.substring(0, 6)}...
+        </a>
         <div className="flex flex-row gap-4">
           {next.map(renderNode)}
         </div>
@@ -93,57 +90,6 @@ export default function Groups() {
           {groups.map(renderNode)}
         </div>
       </div>
-      <dialog id="group-details" className="modal" ref={groupDetailsModal}>
-        <div className="modal-box">
-          <h3 className="font-bold mb-2 text-lg">Group Details</h3>
-          {
-            groupDetailsOf ? (<GroupDetails g={groupDetailsOf} />) : (<></>)
-          }
-          <div className="modal-action">
-            <form method="dialog">
-              <button className="btn">Close</button>
-            </form>
-          </div>
-        </div>
-        <form method="dialog" className="modal-backdrop">
-          <button>close</button>
-        </form>
-      </dialog>
-    </>
-  );
-}
-
-function GroupDetails({g}) {
-  const [members, setMembers] = useState(null);
-  const [parent, setParent] = useState(null);
-  const [children, setChildren] = useState(null);
-  const settings = useContext(SettingsContext);
-
-  useEffect(() => {
-    async function getMembers() {
-      const res = await act(settings, {
-        r: {m: g}
-      });
-      setMembers(res.r.a);
-    }
-    getMembers();
-  }, [g])
-
-  const viewMembers = members && (
-    <ul className="menu rounded-box">
-      {members.map((a) => (<li><a>{a}</a></li>))}
-    </ul>
-  );
-
-  return (
-    <>
-      <span>{g}</span>
-      <h4 className="font-bold mt-2">Members</h4>
-      {members && members.length > 0 ? viewMembers : "none"}
-      <h4 className="font-bold">Parent Group</h4>
-      {parent && parent.length > 0 ? parent[0] : "no parent"}
-      <h4 className="font-bold">Child Groups</h4>
-      {children && children.length > 0 ? children : "none"}
     </>
   );
 }
