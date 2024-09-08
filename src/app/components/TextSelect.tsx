@@ -16,8 +16,10 @@ export default function TextSelect({ label, placeholder, options, onSelect }) {
           .filter((o) => o.startsWith(value))
           .map((o) => (
             <li key={o}>
-              <a onClick={() => {
-                setValue("");
+              <a
+                className={o === value ? "active" : ""}
+                onClick={() => {
+                setValue(o);
                 onSelect(o);
               }}>
                 {o}

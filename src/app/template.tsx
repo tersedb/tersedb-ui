@@ -2,8 +2,8 @@
 
 import TabBar from "./components/TabBar";
 import Settings from "./components/Settings";
-import {SettingsContext, initSettings} from "./components/SettingsContext";
-import {UnauthorizedContext} from "./components/UnauthorizedContext";
+import {SettingsContext, initSettings} from "@/contexts/SettingsContext";
+import {UnauthorizedContext} from "@/contexts/UnauthorizedContext";
 import {useState, useEffect} from "react";
 
 export default function RootTemplate({ children }) {

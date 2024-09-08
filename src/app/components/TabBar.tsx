@@ -10,13 +10,13 @@ export default function TabBar() {
       key={route}
       href={route}
       role="tab"
-      className={"tab" + (pathname === route ? " tab-active" : "")}>
+      className={"tab" + (pathname.startsWith(route) ? " tab-active" : "")}>
       {name}
     </a>
   );
 
   const tabs = [
-    {route: "/", name: "Groups"},
+    {route: "/groups", name: "Groups"},
     {route: "/actors", name: "Actors"},
     {route: "/spaces", name: "Spaces"}
   ]
