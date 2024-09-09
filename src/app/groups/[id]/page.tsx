@@ -139,7 +139,7 @@ export default function Group({ params: { id: g }}) {
     <>
       <div className="breadcrumbs text-sm">
         <ul>
-          <li><a href="/">Groups</a></li>
+          <li><a href="/groups">Groups</a></li>
           <li>{g}</li>
         </ul>
       </div>

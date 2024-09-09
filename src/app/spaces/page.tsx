@@ -52,16 +52,23 @@ export default function Spaces() {
     go();
   }
 
+  const viewSpaces = (
+    <ul className="menu rounded-box">
+      {spaces.map((s) => (
+        <li key={s} className="flex flex-row">
+          <a href={`/spaces/${s}`} className="grow">{s}</a>
+          <button className="btn btn-sm btn-error">-</button>
+        </li>
+      ))}
+    </ul>
+  );
+
   return (
     <>
       <div className="flex flex-row-reverse w-full">
         <button className="btn btn-primary" onClick={createSpace}>Create Space</button>
       </div>
-      <ul className="menu rounded-box">
-        {spaces.map((a) => (
-          <li key={a}><a>{a}</a></li>
-        ))}
-      </ul>
+      {spaces === null ? "none" : viewSpaces}
     </>
   );
 }

@@ -9,13 +9,15 @@ export default function MinorPermission({ g, pName, pLabel, pType, collection })
   const settings = useContext(SettingsContext);
   const addUnauthorized = useContext(UnauthorizedContext);
   const [perms, setPerms] = useState(null);
-  const [possibleIds, setPossibleIds] = useState([]);
+  const [allIds, setAllIds] = useState(null);
   const modalRef = useRef(null);
   const [addedId, setAddedId] = useState(null);
   const [addedP, setAddedP] = useState(null);
+  const cName = pName === "e" ? "s" : pName === "m" ? "g" : pName;
+  const [forceRepaint, setForceRepaint] = useState(false);
 
   useEffect(() => {
-    async function go() {
+    async function getPerms() {
       try {
         const res = await act(settings, {
           r: {p: {[pName]: g}}
@@ -27,29 +29,50 @@ export default function MinorPermission({ g, pName, pLabel, pType, collection })
         console.warn("Couln't get perms", e);
       }
     }
-    if (settings.actors.length > 0) {
-      go();
-    }
-  }, [settings, g, pName]);
-
-  useEffect(() => {
-    async function go() {
+    async function getIds() {
       try {
-        const cName = pName === "e" ? "s" : pName === "m" ? "g" : pName;
         const res = await act(settings, {
           r: cName
         }, {
           401: () => addUnauthorized(`Couldn't Read All ${collection}`),
         });
-        setPossibleIds(res.r[cName].filter((p) => !(perms.includes(p))));
+        setAllIds(res.r[cName]);
       } catch(e) {
         console.warn("Couldn't get all ids", e);
       }
     }
-    if (settings.actors.length > 0 && perms) {
-      go();
+    if (settings.actors.length > 0) {
+      getPerms();
+      getIds();
     }
-  }, [settings, g, pName, perms])
+  }, [settings, g, pName, forceRepaint]);
+
+  if (!allIds) {
+    return (
+      <div className="w-full flex items-center justify-center">
+        <span className="loading loading-spinner loading-lg"></span>
+      </div>
+    );
+  }
+
+  const possibleIds = allIds.filter((p) => !(perms.includes(p)));
+
+  function addP({ p, id }) {
+    async function go() {
+      try {
+        const res = await act(settings, {
+          u: {p: {[pName]: {g, p, s: id}}}
+        }, {
+          401: () => addUnauthorized(`Couldn't set Permission Over ${id} For ${g}`),
+        });
+        setForceRepaint(!forceRepaint);
+      } catch(e) {
+        console.warn("Couldn't save collection permission", e);
+      }
+      modalRef.current.close();
+    }
+    go();
+  }
 
   const currentSettings = perms && (
     <table className="table">
@@ -61,14 +84,16 @@ export default function MinorPermission({ g, pName, pLabel, pType, collection })
         </tr>
       </thead>
       <tbody>
-        {perms.map(([k, v]) => (
-          <tr key={k}>
-            <td>{k}</td>
+        {perms.map(([id, p]) => (
+          <tr key={id}>
+            <td>{id}</td>
             <td>
               {
                 pType === "single"
-                  ? (<SinglePermissionSelect permission={v} onChange={(p) => {}} />)
-                  : (<CollectionPermissionSelect permission={v} onChange={(p) => {}} />)
+                  ? (<SinglePermissionSelect permission={p} onChange={(p) => {}} />)
+                  : (<CollectionPermissionSelect
+                        permission={p}
+                        onChange={(p) => addP({p, id})} />)
               }
             </td>
             <td>
@@ -89,24 +114,6 @@ export default function MinorPermission({ g, pName, pLabel, pType, collection })
     setAddedId(null);
   }
 
-  function addP(e, { p, id }) {
-    e.preventDefault();
-    async function go() {
-      try {
-        const res = await act(settings, {
-          u: {p: {[pName]: {g, p, s: id}}}
-        }, {
-          401: () => addUnauthorized(`Couldn't set Permission Over ${id} For ${g}`),
-        });
-        setForceRepaint(!forceRepaint);
-      } catch(e) {
-        console.warn("Couldn't save collection permission", e);
-      }
-      modalRef.current.close();
-    }
-    go();
-  }
-
   return (
     <>
       {currentSettings}
@@ -122,7 +129,7 @@ export default function MinorPermission({ g, pName, pLabel, pType, collection })
           <h3 className="font-bold text-lg">{`Add ${collection} Permission`}</h3>
           <TextSelect
             label={pLabel}
-            placeholder={`${pName}_1234...`}
+            placeholder={`${cName}_1234...`}
             options={possibleIds}
             onSelect={setAddedId} />
           {
@@ -134,7 +141,11 @@ export default function MinorPermission({ g, pName, pLabel, pType, collection })
             <form method="dialog">
               <button
                 className="btn btn-primary mr-2"
-                onClick={(e) => addP(e, { p: addedP, id: addedId })}>
+                disabled={!addedP || !addedId}
+                onClick={(e) => {
+                  e.preventDefault();
+                  addP({ p: addedP, id: addedId });
+                }}>
                 Save
               </button>
               <button className="btn">Close</button>
