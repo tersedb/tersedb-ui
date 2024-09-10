@@ -54,6 +54,7 @@ export default function Actors() {
 
   return (
     <>
+      <h2 className="font-bold text-xl">Actors</h2>
       <div className="flex flex-row-reverse w-full">
         <button className="btn btn-primary" onClick={createActor}>Create Actor</button>
       </div>

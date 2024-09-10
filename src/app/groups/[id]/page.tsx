@@ -143,8 +143,7 @@ export default function Group({ params: { id: g }}) {
           <li>{g}</li>
         </ul>
       </div>
-      <h3 className="font-bold mt-2 text-lg">Group Structure</h3>
-      <h4 className="font-bold">Members</h4>
+      <h3 className="font-bold text-lg">Members</h3>
       <TextSelect
         label="Add Member"
         placeholder="a_1234..."
@@ -152,7 +151,7 @@ export default function Group({ params: { id: g }}) {
         onSelect={addMember} />
       {members.length > 0 ? viewMembers : "none"}
       <div className="divider"></div>
-      <h4 className="font-bold">Parent Group</h4>
+      <h3 className="font-bold text-lg">Parent Group</h3>
       <TextSelect
         label="Set Parent"
         placeholder="g_1234..."
@@ -160,7 +159,7 @@ export default function Group({ params: { id: g }}) {
         onSelect={() => {}} />
       {parent && parent.length > 0 ? viewParent : "no parent"}
       <div className="divider"></div>
-      <h4 className="font-bold">Child Groups</h4>
+      <h3 className="font-bold text-lg">Child Groups</h3>
       <TextSelect
         label="Add Child"
         placeholder="g_1234..."

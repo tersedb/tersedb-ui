@@ -52,7 +52,7 @@ export default function Groups() {
     }
   }, [settings, forceRepaint])
 
-  if (settings.actors.length === 0 || groups === null) {
+  if (settings.actors.length === 0 || !groups) {
     return (
       <div className="flex items-center justify-center h-full">
         <span className="loading loading-spinner loading-lg"></span>
@@ -90,6 +90,7 @@ export default function Groups() {
 
   return (
     <>
+      <h2 className="font-bold text-xl">Groups</h2>
       <div className="flex flex-col">
         <button
           onClick={createGroup}

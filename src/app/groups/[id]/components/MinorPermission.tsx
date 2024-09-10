@@ -1,6 +1,7 @@
 import SinglePermissionSelect from "./SinglePermissionSelect";
 import CollectionPermissionSelect from "./CollectionPermissionSelect";
 import TextSelect from "@/app/components/TextSelect";
+import Modal from "@/app/components/Modal";
 import {SettingsContext, act} from "@/contexts/SettingsContext";
 import {UnauthorizedContext} from "@/contexts/UnauthorizedContext";
 import {useState, useContext, useEffect, useRef} from "react";
@@ -10,11 +11,11 @@ export default function MinorPermission({ g, pName, pLabel, pType, collection })
   const addUnauthorized = useContext(UnauthorizedContext);
   const [perms, setPerms] = useState(null);
   const [allIds, setAllIds] = useState(null);
-  const modalRef = useRef(null);
   const [addedId, setAddedId] = useState(null);
   const [addedP, setAddedP] = useState(null);
   const cName = pName === "e" ? "s" : pName === "m" ? "g" : pName;
   const [forceRepaint, setForceRepaint] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     async function getPerms() {
@@ -47,7 +48,7 @@ export default function MinorPermission({ g, pName, pLabel, pType, collection })
     }
   }, [settings, g, pName, forceRepaint]);
 
-  if (!allIds) {
+  if (!allIds || !perms) {
     return (
       <div className="w-full flex items-center justify-center">
         <span className="loading loading-spinner loading-lg"></span>
@@ -112,6 +113,7 @@ export default function MinorPermission({ g, pName, pLabel, pType, collection })
   function onCloseModal() {
     setAddedP(null);
     setAddedId(null);
+    setModalOpen(false);
   }
 
   return (
@@ -119,43 +121,29 @@ export default function MinorPermission({ g, pName, pLabel, pType, collection })
       {currentSettings}
       <div className="flex flex-row-reverse w-full">
         <button
-          onClick={() => modalRef.current.showModal()}
+          onClick={() => setModalOpen(true)}
           className="btn btn-sm btn-accent">
           +
         </button>
       </div>
-      <dialog className="modal" ref={modalRef} onClose={onCloseModal}>
-        <div className="modal-box">
-          <h3 className="font-bold text-lg">{`Add ${collection} Permission`}</h3>
-          <TextSelect
-            label={pLabel}
-            placeholder={`${cName}_1234...`}
-            options={possibleIds}
-            onSelect={setAddedId} />
-          {
-            pType === "single"
-              ? (<SinglePermissionSelect permission={addedP} onChange={setAddedP} />)
-              : (<CollectionPermissionSelect permission={addedP} onChange={setAddedP} />)
-          }
-          <div className="modal-action">
-            <form method="dialog">
-              <button
-                className="btn btn-primary mr-2"
-                disabled={!addedP || !addedId}
-                onClick={(e) => {
-                  e.preventDefault();
-                  addP({ p: addedP, id: addedId });
-                }}>
-                Save
-              </button>
-              <button className="btn">Close</button>
-            </form>
-          </div>
-        </div>
-        <form method="dialog" className="modal-backdrop">
-          <button>Close</button>
-        </form>
-      </dialog>
+      <Modal
+        onSubmit={() => addP({ p: addedP, id: addedId })}
+        submitLabel="Save"
+        submitDisabled={!addedP || !addedId}
+        onCloseModal={onCloseModal}
+        open={modalOpen}>
+        <h3 className="font-bold text-lg">{`Add ${collection} Permission`}</h3>
+        <TextSelect
+          label={pLabel}
+          placeholder={`${cName}_1234...`}
+          options={possibleIds}
+          onSelect={setAddedId} />
+        {
+          pType === "single"
+            ? (<SinglePermissionSelect permission={addedP} onChange={setAddedP} />)
+            : (<CollectionPermissionSelect permission={addedP} onChange={setAddedP} />)
+        }
+      </Modal>
     </>
   );
 }

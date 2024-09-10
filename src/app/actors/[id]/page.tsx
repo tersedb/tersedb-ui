@@ -3,13 +3,16 @@
 import {SettingsContext, act} from "@/contexts/SettingsContext";
 import {UnauthorizedContext} from "@/contexts/UnauthorizedContext";
 import TextSelect from "@/app/components/TextSelect";
-import {useContext, useState, useEffect} from "react";
+import Modal from "@/app/components/Modal";
+import {useContext, useState, useEffect, useRef} from "react";
 
 export default function Actor({ params: { id: a }}) {
   const settings = useContext(SettingsContext);
   const addUnauthorized = useContext(UnauthorizedContext);
   const [membersOf, setMembersOf] = useState(null);
   const [allGroups, setAllGroups] = useState(null);
+  const [membership, setMembership] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     async function getMembersOf() {
@@ -56,6 +59,11 @@ export default function Actor({ params: { id: a }}) {
     </ul>
   );
 
+  function onCloseModal() {
+    setMembership(null);
+    setModalOpen(false);
+  }
+
   function addMembership(g) {
 
   }
@@ -71,12 +79,25 @@ export default function Actor({ params: { id: a }}) {
         </ul>
       </div>
       <h3 className="font-bold text-lg">Group Memberships</h3>
-      <TextSelect
-        label="Add Membership"
-        placeholder="g_1234..."
-        options={possibleGroups}
-        onSelect={addMembership} />
-      {membersOf.length > 0 ? viewMembersOf : "none"}
+      {membersOf.length > 0 ? viewMembersOf : (<div>"none"</div>)}
+      <button
+        onClick={() => setModalOpen(true)}
+        className="btn btn-secondary">
+        Add To New Group
+      </button>
+      <Modal
+        onSubmit={() => addMembership(membership)}
+        submitLabel="Save"
+        submitDisabled={!membership}
+        onCloseModal={onCloseModal}
+        open={modalOpen}>
+        <h3 className="font-bold text-lg">{`Set Add Memberhip For ${a}`}</h3>
+        <TextSelect
+          label="Add Membership"
+          placeholder="g_1234..."
+          options={possibleGroups}
+          onSelect={setMembership} />
+      </Modal>
     </>
   );
 }

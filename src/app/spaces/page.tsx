@@ -65,6 +65,7 @@ export default function Spaces() {
 
   return (
     <>
+      <h2 className="font-bold text-xl">Spaces</h2>
       <div className="flex flex-row-reverse w-full">
         <button className="btn btn-primary" onClick={createSpace}>Create Space</button>
       </div>

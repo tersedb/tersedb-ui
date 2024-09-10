@@ -60,7 +60,7 @@ export default function Space({ params: { id: s}}) {
   const viewEntities = entities && (
     <ul className="menu rounded-box">
       {entities.map((e) => (
-        <li className="flex flex-row">
+        <li key={e} className="flex flex-row">
           <a href={`/entities/${e}`} className="grow">{e}</a>
           <button className="btn btn-sm btn-error">-</button>
         </li>

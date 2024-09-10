@@ -5,21 +5,36 @@ import { usePathname } from "next/navigation";
 export default function TabBar() {
   const pathname = usePathname();
 
-  const mkTab = ({route, name}) => (
+  const tabs = [
+    {route: "/groups", name: "Groups"},
+    {route: "/actors", name: "Actors"},
+    {route: "/spaces", name: "Spaces", or: ["/entities"]}
+  ]
+
+  function hasPrefix({route, or}) {
+    if (pathname.startsWith(route)) {
+      return true;
+    }
+    if (or) {
+      if (or.some((alternate) => pathname.startsWith(alternate))) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  const mkTab = ({route, name, or}) => (
     <a
       key={route}
       href={route}
       role="tab"
-      className={"tab" + (pathname.startsWith(route) ? " tab-active" : "")}>
+      className={
+        "tab" + (hasPrefix({route, or}) ? " tab-active" : "")
+      }>
       {name}
     </a>
   );
-
-  const tabs = [
-    {route: "/groups", name: "Groups"},
-    {route: "/actors", name: "Actors"},
-    {route: "/spaces", name: "Spaces"}
-  ]
 
   return (
     <div role="tablist" className="tabs tabs-bordered">
