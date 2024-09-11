@@ -1,51 +1,56 @@
 "use client";
 
-import {useRef, useEffect} from "react";
+import {useRef, useEffect, useState} from "react";
+
+function genId() {
+  const genRanHex = size => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+  return genRanHex(16);
+}
+
 
 export default function Modal({
   onSubmit,
-  submitLabel,
+  submitText,
   submitDisabled,
+  submitVariant,
   children,
   open,
   onCloseModal,
 }) {
   const modalRef = useRef(null);
+  const [modalId, _] = useState(genId());
 
   useEffect(() => {
-    if (open) {
-      modalRef.current.showModal();
-    } else {
-      modalRef.current.close();
-    }
+    modalRef.current.checked = open;
   }, [open])
 
-  const closeButton = onSubmit && (
+  const submitExtraClasses = submitVariant ? `btn-${submitVariant}` : ""
+
+  const submitButton = onSubmit && (
     <button
-      className="btn btn-primary mr-2"
+      className={"btn mr-2 " + submitExtraClasses}
       disabled={submitDisabled}
       onClick={(e) => {
         e.preventDefault();
         onSubmit();
       }}>
-      {submitLabel || "Submit"}
+      {submitText || "Submit"}
     </button>
   );
 
   return (
-    <dialog className="modal" ref={modalRef} onClose={onCloseModal}>
-      <div className="modal-box">
-        {children}
-        <div className="modal-action">
-          <form method="dialog">
-            {closeButton}
-            <button className="btn">Close</button>
-          </form>
+    <>
+      <input type="checkbox" id={modalId} className="modal-toggle" ref={modalRef} />
+      <div className="modal" onClose={onCloseModal}>
+        <div className="modal-box">
+          {children}
+          <div className="modal-action">
+            {submitButton}
+            <label className="btn" htmlFor={modalId}>Close</label>
+          </div>
         </div>
+        <label htmlFor={modalId} className="modal-backdrop">Close</label>
       </div>
-      <form method="dialog" className="modal-backdrop">
-        <button>Close</button>
-      </form>
-    </dialog>
+    </>
   );
 }

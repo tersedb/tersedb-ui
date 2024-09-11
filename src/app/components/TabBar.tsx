@@ -8,7 +8,7 @@ export default function TabBar() {
   const tabs = [
     {route: "/groups", name: "Groups"},
     {route: "/actors", name: "Actors"},
-    {route: "/spaces", name: "Spaces", or: ["/entities"]}
+    {route: "/spaces", name: "Spaces", or: ["/entities", "/versions"]}
   ]
 
   function hasPrefix({route, or}) {

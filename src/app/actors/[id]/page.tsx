@@ -3,7 +3,7 @@
 import {SettingsContext, act} from "@/contexts/SettingsContext";
 import {UnauthorizedContext} from "@/contexts/UnauthorizedContext";
 import TextSelect from "@/app/components/TextSelect";
-import Modal from "@/app/components/Modal";
+import DialogButton from "@/app/components/DialogButton";
 import {useContext, useState, useEffect, useRef} from "react";
 
 export default function Actor({ params: { id: a }}) {
@@ -12,7 +12,6 @@ export default function Actor({ params: { id: a }}) {
   const [membersOf, setMembersOf] = useState(null);
   const [allGroups, setAllGroups] = useState(null);
   const [membership, setMembership] = useState(null);
-  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     async function getMembersOf() {
@@ -59,11 +58,6 @@ export default function Actor({ params: { id: a }}) {
     </ul>
   );
 
-  function onCloseModal() {
-    setMembership(null);
-    setModalOpen(false);
-  }
-
   function addMembership(g) {
 
   }
@@ -80,24 +74,20 @@ export default function Actor({ params: { id: a }}) {
       </div>
       <h3 className="font-bold text-lg">Group Memberships</h3>
       {membersOf.length > 0 ? viewMembersOf : (<div>"none"</div>)}
-      <button
-        onClick={() => setModalOpen(true)}
-        className="btn btn-secondary">
-        Add To New Group
-      </button>
-      <Modal
+      <DialogButton
+        buttonText="Add To New Group"
+        buttonVariant="secondary"
         onSubmit={() => addMembership(membership)}
         submitLabel="Save"
         submitDisabled={!membership}
-        onCloseModal={onCloseModal}
-        open={modalOpen}>
+        onCloseModal={() => setMembership(null)}>
         <h3 className="font-bold text-lg">{`Set Add Memberhip For ${a}`}</h3>
         <TextSelect
           label="Add Membership"
           placeholder="g_1234..."
           options={possibleGroups}
           onSelect={setMembership} />
-      </Modal>
+      </DialogButton>
     </>
   );
 }

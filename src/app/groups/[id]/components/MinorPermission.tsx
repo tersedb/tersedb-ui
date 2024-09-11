@@ -1,7 +1,7 @@
 import SinglePermissionSelect from "./SinglePermissionSelect";
 import CollectionPermissionSelect from "./CollectionPermissionSelect";
 import TextSelect from "@/app/components/TextSelect";
-import Modal from "@/app/components/Modal";
+import DialogButton from "@/app/components/DialogButton";
 import {SettingsContext, act} from "@/contexts/SettingsContext";
 import {UnauthorizedContext} from "@/contexts/UnauthorizedContext";
 import {useState, useContext, useEffect, useRef} from "react";
@@ -15,7 +15,6 @@ export default function MinorPermission({ g, pName, pLabel, pType, collection })
   const [addedP, setAddedP] = useState(null);
   const cName = pName === "e" ? "s" : pName === "m" ? "g" : pName;
   const [forceRepaint, setForceRepaint] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     async function getPerms() {
@@ -70,7 +69,6 @@ export default function MinorPermission({ g, pName, pLabel, pType, collection })
       } catch(e) {
         console.warn("Couldn't save collection permission", e);
       }
-      modalRef.current.close();
     }
     go();
   }
@@ -110,40 +108,33 @@ export default function MinorPermission({ g, pName, pLabel, pType, collection })
     </table>
   );
 
-  function onCloseModal() {
-    setAddedP(null);
-    setAddedId(null);
-    setModalOpen(false);
-  }
-
   return (
     <>
       {currentSettings}
       <div className="flex flex-row-reverse w-full">
-        <button
-          onClick={() => setModalOpen(true)}
-          className="btn btn-sm btn-accent">
-          +
-        </button>
+        <DialogButton
+          buttonText="+"
+          buttonVariant="accent btn-sm"
+          onSubmit={() => addP({ p: addedP, id: addedId })}
+          submitText="Save"
+          submitDisabled={!addedP || !addedId}
+          onCloseModal={() => {
+            setAddedP(null);
+            setAddedId(null);
+          }}>
+          <h3 className="font-bold text-lg">{`Add ${collection} Permission`}</h3>
+          <TextSelect
+            label={pLabel}
+            placeholder={`${cName}_1234...`}
+            options={possibleIds}
+            onSelect={setAddedId} />
+          {
+            pType === "single"
+              ? (<SinglePermissionSelect permission={addedP} onChange={setAddedP} />)
+              : (<CollectionPermissionSelect permission={addedP} onChange={setAddedP} />)
+          }
+        </DialogButton>
       </div>
-      <Modal
-        onSubmit={() => addP({ p: addedP, id: addedId })}
-        submitLabel="Save"
-        submitDisabled={!addedP || !addedId}
-        onCloseModal={onCloseModal}
-        open={modalOpen}>
-        <h3 className="font-bold text-lg">{`Add ${collection} Permission`}</h3>
-        <TextSelect
-          label={pLabel}
-          placeholder={`${cName}_1234...`}
-          options={possibleIds}
-          onSelect={setAddedId} />
-        {
-          pType === "single"
-            ? (<SinglePermissionSelect permission={addedP} onChange={setAddedP} />)
-            : (<CollectionPermissionSelect permission={addedP} onChange={setAddedP} />)
-        }
-      </Modal>
     </>
   );
 }

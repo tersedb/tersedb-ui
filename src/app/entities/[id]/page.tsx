@@ -3,8 +3,9 @@
 import {SettingsContext, act} from "@/contexts/SettingsContext";
 import {UnauthorizedContext} from "@/contexts/UnauthorizedContext";
 import TextSelect from "@/app/components/TextSelect";
-import Modal from "@/app/components/Modal";
+import DialogButton from "@/app/components/DialogButton";
 import {useState, useEffect, useContext, useRef} from "react";
+import {DragDropContext, Draggable, Droppable} from "@hello-pangea/dnd";
 
 export default function Entity({ params: { id: e } }) {
   const [parent, setParent] = useState(null);
@@ -14,7 +15,6 @@ export default function Entity({ params: { id: e } }) {
   const addUnauthorized = useContext(UnauthorizedContext);
   const [forceRepaint, setForceRepaint] = useState(false);
   const [selectedParent, setSelectedParent] = useState(null);
-  const [modalOpen, setModalOpen] = useState(false);
   
   useEffect(() => {
     async function getParent() {
@@ -70,11 +70,6 @@ export default function Entity({ params: { id: e } }) {
 
   const possibleParents = allSpaces.filter((s) => parent !== s);
 
-  function onCloseModal() {
-    setSelectedParent(null);
-    setModalOpen(false);
-  }
-
   function changeParent(s) {
     async function go() {
       try {
@@ -87,17 +82,60 @@ export default function Entity({ params: { id: e } }) {
       } catch(e) {
         console.warn("Couldn't set entity parent", e);
       }
-      onCloseModal();
     }
     go();
   }
 
+  function onDragEnd() {
+  }
+
+  const editVersion = (provided, state, rubric) => (
+    <li
+      className="list-item"
+      ref={provided.innerRef}
+      {...provided.draggableProps}
+      {...provided.dragHandleProps}
+      style={{
+        zIndex: 1000,
+        ...provided.draggableProps.style,
+      }}>
+      <a>{versions[rubric.source.index]}</a>
+    </li>
+  );
+
+  const editVersions = (
+    <DragDropContext onDragEnd={onDragEnd}>
+      <Droppable droppableId="versions" renderClone={editVersion}>{(provided, state) => (
+        <ol
+          className="menu rounded-box list-decimal ml-4"
+          // reversed
+          ref={provided.innerRef}
+          {...provided.droppableProps}>
+          {versions.map((v, idx) => (
+            <Draggable draggableId={v} index={idx} key={v}>{editVersion}</Draggable>
+          ))}
+          {provided.placeholder}
+        </ol>
+      )}</Droppable>
+    </DragDropContext>
+  );
+
   const viewVersions = (
-    <ol className="menu rounded-box flex flex-col-reverse list-decimal ml-4">
-      {versions.slice().reverse().map((v) => (
-        <li key={v} className="list-item"><a href={`/versions/${v}`}>{v}</a></li>
-      ))}
-    </ol>
+    <>
+      <ol className="menu rounded-box list-decimal ml-4" reversed>
+        {versions.map((v) => (
+          <li key={v} className="list-item"><a href={`/versions/${v}`}>{v}</a></li>
+        ))}
+      </ol>
+      <DialogButton
+        buttonText="Change Order"
+        buttonVariant="secondary"
+        onSubmit={() => {}}
+        submitText="Save"
+        onCloseModal={() => {}}>
+        {editVersions}
+      </DialogButton>
+    </>
   );
 
   function createVersion() {
@@ -125,24 +163,20 @@ export default function Entity({ params: { id: e } }) {
           <li>{e}</li>
         </ul>
       </div>
-      <button
-        onClick={() => setModalOpen(true)}
-        className="btn btn-secondary">
-        Move To Different Space
-      </button>
-      <Modal
+      <DialogButton
+        buttonText="Move To Different Space"
+        buttonVariant="secondary"
         onSubmit={() => changeParent(selectedParent)}
-        submitLabel="Save"
+        submitText="Save"
         submitDisabled={!selectedParent}
-        onCloseModal={onCloseModal}
-        open={modalOpen}>
+        onCloseModal={() => setSelectedParent(null)}>
         <h3 className="font-bold text-lg">{`Set Parent For ${e}`}</h3>
         <TextSelect
           label="SpaceId"
           placeholder={"s_1234..."}
           options={possibleParents}
           onSelect={setSelectedParent} />
-      </Modal>
+      </DialogButton>
       <h3 className="font-bold text-lg">Versions</h3>
       <div className="flex flex-row-reverse">
         <button
