@@ -10,6 +10,7 @@ import {DragDropContext, Draggable, Droppable} from "@hello-pangea/dnd";
 export default function Entity({ params: { id: e } }) {
   const [parent, setParent] = useState(null);
   const [versions, setVersions] = useState(null);
+  const [reorderedVersions, setReorderedVersions] = useState(null);
   const [allSpaces, setAllSpaces] = useState(null);
   const settings = useContext(SettingsContext);
   const addUnauthorized = useContext(UnauthorizedContext);
@@ -86,7 +87,18 @@ export default function Entity({ params: { id: e } }) {
     go();
   }
 
-  function onDragEnd() {
+  function onDragEnd({ destination, draggableId }) {
+    if (destination) {
+      const v = draggableId;
+      const newIdx = destination.index;
+      const reorderedVersionsWithoutV = reorderedVersions.filter((v_) => v_ !== v);
+      const newReorderedVersions = [
+        ...reorderedVersionsWithoutV.slice(0, newIdx),
+        v,
+        ...reorderedVersionsWithoutV.slice(newIdx, reorderedVersions.length)
+      ];
+      setReorderedVersions(newReorderedVersions);
+    }
   }
 
   const editVersion = (provided, state, rubric) => (
@@ -99,19 +111,21 @@ export default function Entity({ params: { id: e } }) {
         zIndex: 1000,
         ...provided.draggableProps.style,
       }}>
-      <a>{versions[rubric.source.index]}</a>
+      <a>{rubric.draggableId}</a>
     </li>
   );
 
-  const editVersions = (
+  console.log("reordered shits", reorderedVersions);
+
+  const editVersions = reorderedVersions && (
     <DragDropContext onDragEnd={onDragEnd}>
       <Droppable droppableId="versions" renderClone={editVersion}>{(provided, state) => (
         <ol
           className="menu rounded-box list-decimal ml-4"
-          // reversed
+          reversed
           ref={provided.innerRef}
           {...provided.droppableProps}>
-          {versions.map((v, idx) => (
+          {reorderedVersions.map((v, idx) => (
             <Draggable draggableId={v} index={idx} key={v}>{editVersion}</Draggable>
           ))}
           {provided.placeholder}
@@ -132,7 +146,10 @@ export default function Entity({ params: { id: e } }) {
         buttonVariant="secondary"
         onSubmit={() => {}}
         submitText="Save"
-        onCloseModal={() => {}}>
+        submitVariant="primary"
+        onSubmit={() => {}}
+        onOpenModal={() => setReorderedVersions(versions)}
+        onCloseModal={() => setReorderedVersions(null)}>
         {editVersions}
       </DialogButton>
     </>

@@ -36,3 +36,7 @@
   border-color: var(--fallback-bc,oklch(var(--bc)/0.2)); /* matching daisy tabs */
   min-height: 100vh;
 }
+
+*:not(ol):not(ul) > li {
+  list-style: none;
+}

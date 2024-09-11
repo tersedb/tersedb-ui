@@ -8,6 +8,8 @@ export default function DialogButton({
   buttonVariant,
   children,
   onSubmit,
+  onOpenModal,
+  onCloseModal,
   submitText,
   submitDisabled,
   submitVariant,
@@ -31,7 +33,8 @@ export default function DialogButton({
         submitText={submitText}
         submitDisabled={submitDisabled}
         submitVariant={submitVariant}
-        onCloseModal={() => setModalOpen(false)}
+        onOpenModal={onOpenModal}
+        onCloseModal={onCloseModal}
         open={modalOpen}>
         {children}
       </Modal>

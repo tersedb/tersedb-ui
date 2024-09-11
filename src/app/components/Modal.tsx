@@ -15,6 +15,7 @@ export default function Modal({
   submitVariant,
   children,
   open,
+  onOpenModal,
   onCloseModal,
 }) {
   const modalRef = useRef(null);
@@ -22,7 +23,12 @@ export default function Modal({
 
   useEffect(() => {
     modalRef.current.checked = open;
-  }, [open])
+    if (open && onOpenModal) {
+      onOpenModal();
+    } else if (!open && onCloseModal) {
+      onCloseModal();
+    }
+  }, [open]);
 
   const submitExtraClasses = submitVariant ? `btn-${submitVariant}` : ""
 
@@ -41,7 +47,7 @@ export default function Modal({
   return (
     <>
       <input type="checkbox" id={modalId} className="modal-toggle" ref={modalRef} />
-      <div className="modal" onClose={onCloseModal}>
+      <div className="modal">
         <div className="modal-box">
           {children}
           <div className="modal-action">
