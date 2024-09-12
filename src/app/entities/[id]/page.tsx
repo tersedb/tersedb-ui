@@ -11,6 +11,7 @@ export default function Entity({ params: { id: e } }) {
   const [parent, setParent] = useState(null);
   const [versions, setVersions] = useState(null);
   const [reorderedVersions, setReorderedVersions] = useState(null);
+  const [reorderingOperations, setReorderingOperations] = useState(null);
   const [allSpaces, setAllSpaces] = useState(null);
   const settings = useContext(SettingsContext);
   const addUnauthorized = useContext(UnauthorizedContext);
@@ -90,14 +91,15 @@ export default function Entity({ params: { id: e } }) {
   function onDragEnd({ destination, draggableId }) {
     if (destination) {
       const v = draggableId;
-      const newIdx = destination.index;
+      const idx = destination.index;
       const reorderedVersionsWithoutV = reorderedVersions.filter((v_) => v_ !== v);
       const newReorderedVersions = [
-        ...reorderedVersionsWithoutV.slice(0, newIdx),
+        ...reorderedVersionsWithoutV.slice(0, idx),
         v,
-        ...reorderedVersionsWithoutV.slice(newIdx, reorderedVersions.length)
+        ...reorderedVersionsWithoutV.slice(idx, reorderedVersions.length)
       ];
       setReorderedVersions(newReorderedVersions);
+      setReorderingOperations([...reorderingOperations, { v, idx }]);
     }
   }
 
@@ -134,6 +136,20 @@ export default function Entity({ params: { id: e } }) {
     </DragDropContext>
   );
 
+  function submitReordering() {
+    async function go() {
+      for (const {v, idx} of reorderingOperations) {
+        const res = await act(settings, {
+          u: {v: {v, i: idx}}
+        }, {
+          401: () => addUnauthorized(`Couldn't Move Version ${v}`),
+        });
+      }
+      setForceRepaint(!forceRepaint);
+    }
+    go();
+  }
+
   const viewVersions = (
     <>
       <ol className="menu rounded-box list-decimal ml-4" reversed>
@@ -147,9 +163,15 @@ export default function Entity({ params: { id: e } }) {
         onSubmit={() => {}}
         submitText="Save"
         submitVariant="primary"
-        onSubmit={() => {}}
-        onOpenModal={() => setReorderedVersions(versions)}
-        onCloseModal={() => setReorderedVersions(null)}>
+        onSubmit={submitReordering}
+        onOpenModal={() => {
+          setReorderedVersions(versions)
+          setReorderingOperations([]);
+        }}
+        onCloseModal={() => {
+          setReorderedVersions(null);
+          setReorderingOperations(null);
+        }}>
         {editVersions}
       </DialogButton>
     </>
