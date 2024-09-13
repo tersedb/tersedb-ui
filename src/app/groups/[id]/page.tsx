@@ -6,6 +6,7 @@ import EffectivePermissions from "./components/EffectivePermissions";
 import {SettingsContext, act} from "@/contexts/SettingsContext";
 import {UnauthorizedContext} from "@/contexts/UnauthorizedContext";
 import TextSelect from "@/app/components/TextSelect";
+import DeleteViaConfirm from "@/app/components/DeleteViaConfirm";
 import {useState, useContext, useEffect, useRef} from "react";
 
 export default function Group({ params: { id: g }}) {
@@ -104,7 +105,13 @@ export default function Group({ params: { id: g }}) {
       {members.map((a) => (
         <li key={a} className="flex flex-row w-full">
           <a className="grow" href={`/actors/${a}`}>{a}</a>
-          <button className="btn btn-sm btn-error">-</button>
+          <DeleteViaConfirm
+            buttonText="-"
+            buttonExtraClasses="btn-sm"
+            onConfirm={() => {}}
+            confirmText="Remove Member">
+            Are you sure you want to remove {a} from {g}?
+          </DeleteViaConfirm>
         </li>
       ))}
     </ul>

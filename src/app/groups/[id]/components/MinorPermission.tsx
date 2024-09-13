@@ -2,6 +2,7 @@ import SinglePermissionSelect from "./SinglePermissionSelect";
 import CollectionPermissionSelect from "./CollectionPermissionSelect";
 import TextSelect from "@/app/components/TextSelect";
 import DialogButton from "@/app/components/DialogButton";
+import DeleteViaConfirm from "@/app/components/DeleteViaConfirm";
 import {SettingsContext, act} from "@/contexts/SettingsContext";
 import {UnauthorizedContext} from "@/contexts/UnauthorizedContext";
 import {useState, useContext, useEffect, useRef} from "react";
@@ -96,11 +97,13 @@ export default function MinorPermission({ g, pName, pLabel, pType, collection })
               }
             </td>
             <td>
-              <button
-                onClick={() => {}}
-                className="btn btn-sm btn-error">
-                -
-              </button>
+              <DeleteViaConfirm
+                buttonText="-"
+                buttonExtraClasses="btn-sm"
+                onConfirm={() => {}}
+                confirmText="Delete Permission">
+                Are you sure you want to delete this permission?
+              </DeleteViaConfirm>
             </td>
           </tr>
         ))}
