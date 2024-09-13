@@ -4,7 +4,11 @@ import {SettingsContext, act} from "@/contexts/SettingsContext";
 import {UnauthorizedContext} from "@/contexts/UnauthorizedContext";
 import {useState, useEffect, useContext} from "react";
 
-export default function Version({ params: { id: v } }) {
+export default function Version({
+  params: { id: v }
+}: {
+  params: { id: string }
+}) {
   const settings = useContext(SettingsContext);
   const addUnauthorized = useContext(UnauthorizedContext);
   const [s, setS] = useState(null);

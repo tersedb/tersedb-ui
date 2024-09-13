@@ -4,17 +4,23 @@ import {SettingsContext, act} from "@/contexts/SettingsContext";
 import {UnauthorizedContext} from "@/contexts/UnauthorizedContext";
 import {useContext, useState, useEffect, useRef} from "react";
 
+type GroupHeirarchy = {
+  g: string,
+  next: GroupHeirarchy[],
+}
+
+
 export default function Groups() {
   const settings = useContext(SettingsContext);
   const addUnauthorized = useContext(UnauthorizedContext);
   const [forceRepaint, setForceRepaint] = useState(false);
-  const [groups, setGroups] = useState(null);
+  const [groups, setGroups] = useState<GroupHeirarchy[] | null>(null);
   const groupDetailsModal = useRef(null);
   const [groupDetailsOf, setGroupDetailsOf] = useState(null);
 
   useEffect(() => {
     async function go() {
-      async function getNext(gs) {
+      async function getNext(gs: string[]): Promise<GroupHeirarchy[]> {
         let thunks = [];
         for (const g of gs) {
           thunks.push((async () => {
@@ -65,7 +71,7 @@ export default function Groups() {
       const res = await act(settings, {
         c: "g"
       }, {
-        401: addUnauthorized("Couldn't Create Group"),
+        401: () => addUnauthorized("Couldn't Create Group"),
       });
       console.log(res);
       setForceRepaint(!forceRepaint);
@@ -73,7 +79,7 @@ export default function Groups() {
     go();
   }
 
-  function renderNode({g, next}) {
+  function renderNode({g, next}: GroupHeirarchy) {
     return (
       <div className="flex flex-col gap-4" key={g}>
         <a

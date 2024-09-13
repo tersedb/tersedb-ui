@@ -9,13 +9,17 @@ import TextSelect from "@/app/components/TextSelect";
 import DeleteViaConfirm from "@/app/components/DeleteViaConfirm";
 import {useState, useContext, useEffect, useRef} from "react";
 
-export default function Group({ params: { id: g }}) {
+export default function Group({
+  params: { id: g }
+}: {
+  params: { id: string }
+}) {
   const [forceRepaint, setForceRepaint] = useState(false);
-  const [members, setMembers] = useState(null);
-  const [parent, setParent] = useState(null);
-  const [children, setChildren] = useState(null);
-  const [allGroups, setAllGroups] = useState(null);
-  const [allActors, setAllActors] = useState(null);
+  const [members, setMembers] = useState<string[] | null>(null);
+  const [parent, setParent] = useState<string | null>(null);
+  const [children, setChildren] = useState<string[] | null>(null);
+  const [allGroups, setAllGroups] = useState<string[] | null>(null);
+  const [allActors, setAllActors] = useState<string[] | null>(null);
   const settings = useContext(SettingsContext);
   const addUnauthorized = useContext(UnauthorizedContext);
 
@@ -108,10 +112,11 @@ export default function Group({ params: { id: g }}) {
           <DeleteViaConfirm
             buttonText="-"
             buttonExtraClasses="btn-sm"
+            warning="Are you sure you want to remove {a} from {g}?"
             onConfirm={() => {}}
-            confirmText="Remove Member">
-            Are you sure you want to remove {a} from {g}?
-          </DeleteViaConfirm>
+            confirmText="Remove Member">{({button}) =>
+            button
+          }</DeleteViaConfirm>
         </li>
       ))}
     </ul>
@@ -126,7 +131,7 @@ export default function Group({ params: { id: g }}) {
     </ul>
   );
 
-  function addMember(a) {
+  function addMember(a: string) {
     async function go() {
       try {
         const res = await act(settings, {

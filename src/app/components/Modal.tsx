@@ -2,8 +2,9 @@
 
 import {useRef, useEffect, useState} from "react";
 
-function genId() {
-  const genRanHex = size => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+function genId(): string {
+  const genRanHex = (size: number) =>
+    [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
   return genRanHex(16);
 }
 
@@ -17,12 +18,22 @@ export default function Modal({
   open,
   onOpenModal,
   onCloseModal,
+}: {
+  onSubmit: () => void,
+  submitText: string,
+  submitDisabled?: boolean,
+  submitVariant?: string,
+  children: React.ReactNode,
+  open: boolean,
+  onOpenModal?: () => void,
+  onCloseModal?: () => void,
 }) {
-  const modalRef = useRef(null);
+  const modalRef = useRef<HTMLInputElement>(null);
   const [modalId, _] = useState(genId());
 
   useEffect(() => {
-    modalRef.current.checked = open;
+    if (modalRef.current)
+      modalRef.current.checked = open;
     if (open && onOpenModal) {
       onOpenModal();
     } else if (!open && onCloseModal) {

@@ -6,12 +6,16 @@ import TextSelect from "@/app/components/TextSelect";
 import DialogButton from "@/app/components/DialogButton";
 import {useContext, useState, useEffect, useRef} from "react";
 
-export default function Actor({ params: { id: a }}) {
+export default function Actor({
+  params: { id: a }
+}: {
+  params: { id: string }
+}) {
   const settings = useContext(SettingsContext);
   const addUnauthorized = useContext(UnauthorizedContext);
-  const [membersOf, setMembersOf] = useState(null);
-  const [allGroups, setAllGroups] = useState(null);
-  const [membership, setMembership] = useState(null);
+  const [membersOf, setMembersOf] = useState<string[] | null>(null);
+  const [allGroups, setAllGroups] = useState<string[] | null>(null);
+  const [membership, setMembership] = useState<string | null>(null);
 
   useEffect(() => {
     async function getMembersOf() {
@@ -58,11 +62,22 @@ export default function Actor({ params: { id: a }}) {
     </ul>
   );
 
-  function addMembership(g) {
+  function addMembership(g: string) {
 
   }
 
   const possibleGroups = allGroups.filter((g) => !(membersOf.includes(g)));
+
+  const modalContent = (
+    <>
+      <h3 className="font-bold text-lg">{`Add Group Membership For ${a}`}</h3>
+      <TextSelect
+        label="Add Membership"
+        placeholder="g_1234..."
+        options={possibleGroups}
+        onSelect={setMembership} />
+    </>
+  );
 
   return (
     <>
@@ -73,20 +88,17 @@ export default function Actor({ params: { id: a }}) {
         </ul>
       </div>
       <h3 className="font-bold text-lg">Group Memberships</h3>
-      {membersOf.length > 0 ? viewMembersOf : (<div>"none"</div>)}
+      {membersOf.length > 0 ? viewMembersOf : (<div>none</div>)}
       <DialogButton
         buttonText="Add To New Group"
         buttonVariant="secondary"
-        onSubmit={() => addMembership(membership)}
-        submitLabel="Save"
+        onSubmit={() => membership && addMembership(membership)}
+        modalContent={modalContent}
+        submitText="Save"
         submitDisabled={!membership}
-        onCloseModal={() => setMembership(null)}>
-        <h3 className="font-bold text-lg">{`Set Add Memberhip For ${a}`}</h3>
-        <TextSelect
-          label="Add Membership"
-          placeholder="g_1234..."
-          options={possibleGroups}
-          onSelect={setMembership} />
+        onCloseModal={() => setMembership(null)}>{({button}) => 
+          button
+        }
       </DialogButton>
     </>
   );

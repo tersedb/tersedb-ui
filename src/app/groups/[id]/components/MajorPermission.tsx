@@ -4,8 +4,21 @@ import {SettingsContext, act} from "@/contexts/SettingsContext";
 import {UnauthorizedContext} from "@/contexts/UnauthorizedContext";
 import {useState, useContext, useEffect} from "react";
 
-export default function MajorPermission({ g, pName, pLabel, s, onSelect }) {
-  const [permission, setPermission] = useState(null);
+export default function MajorPermission({
+  g,
+  pName,
+  pLabel,
+  s,
+  onSelect,
+}: {
+  g: string,
+  pName: "u" | "o" | "r",
+  pLabel: string,
+  s?: string,
+  onSelect?: () => void,
+}) {
+  const [permission, setPermission] =
+    useState<string | {e: boolean, p: string} | null>(null);
   const settings = useContext(SettingsContext);
   const addUnauthorized = useContext(UnauthorizedContext);
 
@@ -23,7 +36,7 @@ export default function MajorPermission({ g, pName, pLabel, s, onSelect }) {
     getPermission();
   }, [settings, g, pName])
 
-  function onChange({e, p}) {
+  function onChange({e, p}: {e?: boolean, p: string}) {
     async function go() {
       try {
         const newPermission = e ? { e, p } : p
@@ -34,7 +47,7 @@ export default function MajorPermission({ g, pName, pLabel, s, onSelect }) {
         });
         setPermission(newPermission)
         // setForceRepaint(!forceRepaint);
-        onSelect();
+        if (onSelect) onSelect();
       } catch(e) {
         console.warn("Couldn't set", e);
       }
@@ -42,22 +55,24 @@ export default function MajorPermission({ g, pName, pLabel, s, onSelect }) {
     go();
   }
 
-  if (pName === "u" || pName === "o") {
-    return (
-      <div className="flex flex-row">
+  if (permission !== null) {
+    if ((pName === "u" || pName === "o") && typeof permission !== "string") {
+      return (
+        <div className="flex flex-row">
+          <CollectionPermissionSelect
+            permission={permission && permission.p}
+            onChange={(p) => onChange({...permission, p})} />
+          <PermissionExempt
+            exempt={permission && permission.e}
+            onChange={(e) => onChange({p: permission.p, e})} />
+        </div>
+      );
+    } else if (typeof permission === "string") {
+      return (
         <CollectionPermissionSelect
-          permission={permission && permission.p}
-          onChange={(p) => onChange({...permission, p})} />
-        <PermissionExempt
-          exempt={permission && permission.e}
-          onChange={(e) => onChange({...permission, e})} />
-      </div>
-    );
-  } else {
-    return (
-      <CollectionPermissionSelect
-        permission={permission}
-        onChange={(p) => onChange({ p })} />
-    );
+          permission={permission}
+          onChange={(p) => onChange({ p })} />
+      );
+    }
   }
 }

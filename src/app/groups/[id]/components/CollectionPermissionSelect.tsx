@@ -1,4 +1,10 @@
-export default function CollectionPermissionSelect({ permission, onChange }) {
+export default function CollectionPermissionSelect({
+  permission,
+  onChange,
+}: {
+  permission: string | null,
+  onChange: (_: string) => void,
+}) {
   let perms = [
     { p: "b", name: "Blind" },
     { p: "r", name: "Read" },

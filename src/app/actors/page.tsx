@@ -7,7 +7,7 @@ import {useState, useEffect, useContext} from "react";
 export default function Actors() {
   const settings = useContext(SettingsContext);
   const addUnauthorized = useContext(UnauthorizedContext);
-  const [actors, setActors] = useState(null);
+  const [actors, setActors] = useState<string[] | null>(null);
   const [forceRepaint, setForceRepaint] = useState(false);
 
   useEffect(() => {

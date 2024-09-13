@@ -7,13 +7,25 @@ import {SettingsContext, act} from "@/contexts/SettingsContext";
 import {UnauthorizedContext} from "@/contexts/UnauthorizedContext";
 import {useState, useContext, useEffect, useRef} from "react";
 
-export default function MinorPermission({ g, pName, pLabel, pType, collection }) {
+export default function MinorPermission({
+  g,
+  pName,
+  pLabel,
+  pType,
+  collection,
+}: {
+  g: string,
+  pName: "s" | "e" | "g" | "m",
+  pLabel: string,
+  pType: "single" | "collection",
+  collection: string,
+}) {
   const settings = useContext(SettingsContext);
   const addUnauthorized = useContext(UnauthorizedContext);
-  const [perms, setPerms] = useState(null);
-  const [allIds, setAllIds] = useState(null);
-  const [addedId, setAddedId] = useState(null);
-  const [addedP, setAddedP] = useState(null);
+  const [perms, setPerms] = useState<[p: string, s: string][] | null>(null);
+  const [allIds, setAllIds] = useState<string[] | null>(null);
+  const [addedId, setAddedId] = useState<string | null>(null);
+  const [addedP, setAddedP] = useState<string | null>(null);
   const cName = pName === "e" ? "s" : pName === "m" ? "g" : pName;
   const [forceRepaint, setForceRepaint] = useState(false);
 
@@ -56,9 +68,15 @@ export default function MinorPermission({ g, pName, pLabel, pType, collection })
     );
   }
 
-  const possibleIds = allIds.filter((p) => !(perms.includes(p)));
+  const possibleIds = allIds.filter((p) => !(perms.map(([k,_]) => k).includes(p)));
 
-  function addP({ p, id }) {
+  function addP({
+    p,
+    id,
+  }: {
+    p: string,
+    id: string,
+  }) {
     async function go() {
       try {
         const res = await act(settings, {
@@ -100,15 +118,32 @@ export default function MinorPermission({ g, pName, pLabel, pType, collection })
               <DeleteViaConfirm
                 buttonText="-"
                 buttonExtraClasses="btn-sm"
+                warning="Are you sure you want to delete this permission?"
                 onConfirm={() => {}}
-                confirmText="Delete Permission">
-                Are you sure you want to delete this permission?
-              </DeleteViaConfirm>
+                confirmText="Delete Permission">{({button}) =>
+                button
+              }</DeleteViaConfirm>
             </td>
           </tr>
         ))}
       </tbody>
     </table>
+  );
+
+  const newPermissionModalContent = (
+    <>
+      <h3 className="font-bold text-lg">{`Add ${collection} Permission`}</h3>
+      <TextSelect
+        label={pLabel}
+        placeholder={`${cName}_1234...`}
+        options={possibleIds}
+        onSelect={setAddedId} />
+      {
+        pType === "single"
+          ? (<SinglePermissionSelect permission={addedP} onChange={setAddedP} />)
+          : (<CollectionPermissionSelect permission={addedP} onChange={setAddedP} />)
+      }
+    </>
   );
 
   return (
@@ -118,25 +153,16 @@ export default function MinorPermission({ g, pName, pLabel, pType, collection })
         <DialogButton
           buttonText="+"
           buttonVariant="accent btn-sm"
-          onSubmit={() => addP({ p: addedP, id: addedId })}
+          modalContent={newPermissionModalContent}
+          onSubmit={() => addedP && addedId && addP({ p: addedP, id: addedId })}
           submitText="Save"
           submitDisabled={!addedP || !addedId}
           onCloseModal={() => {
             setAddedP(null);
             setAddedId(null);
-          }}>
-          <h3 className="font-bold text-lg">{`Add ${collection} Permission`}</h3>
-          <TextSelect
-            label={pLabel}
-            placeholder={`${cName}_1234...`}
-            options={possibleIds}
-            onSelect={setAddedId} />
-          {
-            pType === "single"
-              ? (<SinglePermissionSelect permission={addedP} onChange={setAddedP} />)
-              : (<CollectionPermissionSelect permission={addedP} onChange={setAddedP} />)
-          }
-        </DialogButton>
+          }}>{({button}) =>
+          button
+        }</DialogButton>
       </div>
     </>
   );

@@ -4,10 +4,14 @@ import {SettingsContext, act} from "@/contexts/SettingsContext";
 import {UnauthorizedContext} from "@/contexts/UnauthorizedContext";
 import {useState, useEffect, useContext} from "react";
 
-export default function Space({ params: { id: s}}) {
+export default function Space({
+  params: { id: s}
+}: {
+  params: { id: string }
+}) {
   const settings = useContext(SettingsContext);
   const addUnauthorized = useContext(UnauthorizedContext);
-  const [entities, setEntities] = useState(null);
+  const [entities, setEntities] = useState<string[] | null | undefined>(null);
   const [forceRepaint, setForceRepaint] = useState(false);
 
   useEffect(() => {

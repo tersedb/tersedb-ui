@@ -7,8 +7,15 @@ export default function Settings({
   unauthorized,
   rmUnauthorized,
   onChange
+}: {
+  actors: string[],
+  strict: boolean,
+  host: string,
+  unauthorized: string[],
+  rmUnauthorized: (_: number) => void,
+  onChange: (_: { actors: string[], strict: boolean, host: string }) => void,
 }) {
-  const viewActor = ({actor}, idx) => (
+  const viewActor = (actor: string, idx: number) => (
     <li className="my-1 flex flex-row gap-1 items-center" key={idx}>
       <input
         type="text"
@@ -18,7 +25,7 @@ export default function Settings({
         onChange={(e) => onChange({
           host,
           strict,
-          actors: actors.map((x, idx_) => idx_ === idx ? {actor: e.target.value} : x)
+          actors: actors.map((x, idx_) => idx_ === idx ? e.target.value : x)
         })} />
       <button
         className="btn btn-error btn-sm"
@@ -57,7 +64,7 @@ export default function Settings({
               onClick={() => onChange({
                 strict,
                 host,
-                actors: [...actors, {actor: ""}]
+                actors: [...actors, ""]
               })}
               className="btn btn-accent btn-sm">
               +

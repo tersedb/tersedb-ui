@@ -7,7 +7,7 @@ import {useState, useEffect, useContext} from "react";
 export default function Spaces() {
   const settings = useContext(SettingsContext);
   const addUnauthorized = useContext(UnauthorizedContext);
-  const [spaces, setSpaces] = useState(null);
+  const [spaces, setSpaces] = useState<string[] | null>(null);
   const [forceRepaint, setForceRepaint] = useState(false);
 
   useEffect(() => {

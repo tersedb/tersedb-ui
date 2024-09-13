@@ -2,12 +2,16 @@ import {useContext, useState, useEffect} from "react";
 import {SettingsContext, act} from "@/contexts/SettingsContext";
 import {UnauthorizedContext} from "@/contexts/UnauthorizedContext";
 
-export default function EffectivePermissions({ g }) {
+export default function EffectivePermissions({
+  g
+}: {
+  g: string,
+}) {
   const settings = useContext(SettingsContext);
   const addUnauthorized = useContext(UnauthorizedContext);
-  const [u, setU] = useState(null);
-  const [o, setO] = useState(null);
-  const [r, setR] = useState(null);
+  const [u, setU] = useState<{p: string, e: boolean} | null>(null);
+  const [o, setO] = useState<{p: string, e: boolean} | null>(null);
+  const [r, setR] = useState<string | null>(null);
 
   useEffect(() => {
     async function getU() {
@@ -53,7 +57,7 @@ export default function EffectivePermissions({ g }) {
     }
   }, [settings, g])
 
-  function ViewPermission({ p }) {
+  function ViewPermission({ p }: { p: string }) {
     const viewedP =
       p === "b" ? "Blind" :
       p === "r" ? "Read" :
@@ -64,7 +68,7 @@ export default function EffectivePermissions({ g }) {
     );
   }
 
-  function ViewExempt({ e }) {
+  function ViewExempt({ e }: { e: boolean }) {
     return (
       <span>{`Is ${e ? "" : "Not "}Exempt From Restriction`}</span>
     );

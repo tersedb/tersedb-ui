@@ -1,6 +1,12 @@
 import {createContext} from "react";
 
-export const initSettings = {
+export type Settings = {
+  actors: string[],
+  host: string,
+  strict: boolean,
+}
+
+export const initSettings: Settings = {
   actors: [],
   host: "http://localhost:8000",
   strict: false,
@@ -8,9 +14,13 @@ export const initSettings = {
 
 export const SettingsContext = createContext(initSettings)
 
-export async function act(settings, body, onStatus) {
+export async function act(
+  settings: Settings,
+  body: any,
+  onStatus?: {[key: number]: () => void},
+) {
   const uri = settings.host + (settings.strict ? "/actStrict" : "/act");
-  const actors = settings.actors.map(({actor}) => actor).join(",");
+  const actors = settings.actors.join(",");
   try {
     const httpResponse = await fetch(uri, {
       cache: "no-store",

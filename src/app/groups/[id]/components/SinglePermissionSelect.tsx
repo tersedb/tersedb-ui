@@ -1,4 +1,12 @@
-export default function SinglePermissionSelect({ permission, onChange }) {
+"use client";
+
+export default function SinglePermissionSelect({
+  permission,
+  onChange,
+}: {
+  permission: string | null,
+  onChange: (_: string) => void,
+}) {
   let perms = [
     { p: "n", name: "NonExistent" },
     { p: "e", name: "Exists" },

@@ -1,5 +1,4 @@
 import {createContext} from "react";
 
-export const UnauthorizedContext = createContext(function addUnauthorized(u) {
-  
+export const UnauthorizedContext = createContext(function addUnauthorized(_: string) {
 });

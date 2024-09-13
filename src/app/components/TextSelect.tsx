@@ -2,10 +2,20 @@
 
 import {useState} from "react";
 
-export default function TextSelect({ label, placeholder, options, onSelect }) {
+export default function TextSelect({
+  label,
+  placeholder,
+  options,
+  onSelect
+}: {
+  label: React.ReactNode,
+  placeholder: string,
+  options: string[],
+  onSelect: (_: string) => void,
+}) {
   const [value, setValue] = useState("");
 
-  function onChange(e) {
+  function onChange(e: React.ChangeEvent<HTMLInputElement>) {
     setValue(e.target.value);
   }
 

@@ -6,18 +6,25 @@ import {SettingsContext, initSettings} from "@/contexts/SettingsContext";
 import {UnauthorizedContext} from "@/contexts/UnauthorizedContext";
 import {useState, useEffect} from "react";
 
-export default function RootTemplate({ children }) {
+export default function RootTemplate({
+  children
+}: {
+  children: React.ReactNode,
+}) {
   const [settings, setSettings] = useState(initSettings);
-  const [unauthorizedNotices, setUnauthorizedNotices] = useState([]);
-  function addUnauthorized(notice) {
+  const [unauthorizedNotices, setUnauthorizedNotices] = useState<string[]>([]);
+  function addUnauthorized(notice: string) {
     setUnauthorizedNotices([ ...unauthorizedNotices, notice ]);
   }
 
   useEffect(() => {
     try {
-      const storedSettings = JSON.parse(localStorage.getItem("settings"));
-      if (storedSettings) {
-        setSettings(storedSettings);
+      const settingsString = localStorage.getItem("settings");
+      if (settingsString) {
+        const storedSettings = JSON.parse(settingsString);
+        if (storedSettings) {
+          setSettings(storedSettings);
+        }
       }
     } catch(e) {
       console.warn("Failed to parse locally stored settings", e);

@@ -11,7 +11,13 @@ export default function TabBar() {
     {route: "/spaces", name: "Spaces", or: ["/entities", "/versions"]}
   ]
 
-  function hasPrefix({route, or}) {
+  function hasPrefix({
+    route,
+    or,
+  }: {
+    route: string,
+    or?: string[],
+  }): boolean {
     if (pathname.startsWith(route)) {
       return true;
     }
@@ -24,7 +30,15 @@ export default function TabBar() {
     return false;
   }
 
-  const mkTab = ({route, name, or}) => (
+  const mkTab = ({
+    route,
+    name,
+    or,
+  }: {
+    route: string,
+    name: string,
+    or?: string[],
+  }) => (
     <a
       key={route}
       href={route}
